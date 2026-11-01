@@ -250,9 +250,9 @@
 <body>
 
 <div class="topbar">
-  <h1>يَا أَيُّهَا الَّذِينَ آمَنُوا اذْكُرُوا اللَّهَ ذِكْرًا كَثِيرًا </h1>
+  <h1>يَا أَيُّهَا الَّذِينَ آمَنُوا اذْكُرُوا اللَّهَ ذِكْرًا كَثِيرًا</h1>
   <button class="icon-btn" id="themeBtn" title="تبديل المظهر">🌙</button>
-  <button class="icon-btn add-btn" id="addBtn" title="إضافة مسبحة">＋</button>
+  <button class="icon-btn add-btn" id="addBtn" title="إضافة مربع">＋</button>
 </div>
 
 <div class="grid" id="grid"></div>
@@ -369,7 +369,7 @@
       el.innerHTML = `
         <div class="name">${escapeHtml(item.name)}</div>
         <div class="count">${item.count}</div>
-        <div class="hint">اضغط للزيادة • اضغط مطولاً للتصفير</div>
+        <div class="hint">اضغط للزيادة • اضغط مطولاً للحذف</div>
       `;
 
       // نقر عادي = زيادة
@@ -379,8 +379,13 @@
         if (!it) return;
         it.count++;
         el.querySelector('.count').textContent = it.count;
+        
+        // تحديث النص
+        const hintEl = el.querySelector('.hint');
+        if(hintEl) hintEl.textContent = 'اضغط للزيادة • اضغط مطولاً للتصفير';
+        
         save();
-      });
+        });
 
       // ضغط طويل = تصفير أو طلب حذف
       el.addEventListener('pointerdown', (e) => {
@@ -392,6 +397,11 @@
           if (it.count > 0) {
             it.count = 0;
             el.querySelector('.count').textContent = 0;
+            
+            // تحديث النص بعد التصفير
+            const hintEl = el.querySelector('.hint');
+            if(hintEl) hintEl.textContent = 'اضغط للزيادة • اضغط مطولاً للحذف';
+            
             save();
             toast('تم تصفير: ' + it.name);
             if (navigator.vibrate) navigator.vibrate(30);

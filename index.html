@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0f172a">
-<title>عداد النقرات</title>
+<title>يَا أَيُّهَا الَّذِينَ آمَنُوا اذْكُرُوا اللَّهَ ذِكْرًا كَثِيرًا</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.png">
 <script>
@@ -94,7 +94,7 @@
     .grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
   }
 
-  /* المربع */
+  /* المسبحة */
   .counter {
     position: relative;
     border-radius: 20px;
@@ -259,16 +259,16 @@
 
 <div class="empty" id="emptyState">
   <div class="big">📊</div>
-  لا توجد مربعات بعد<br>
-  اضغط زر <b>＋</b> بالأعلى لإضافة أول مربع
+  لا توجد مسبحة بعد<br>
+  اضغط زر <b>＋</b> بالأعلى لإضافة أول مسبحة
 </div>
 
 <!-- نافذة الإضافة -->
 <div class="overlay" id="addOverlay">
   <div class="dialog">
-    <h3>إضافة مربع جديد</h3>
-    <p>اكتب اسماً واضحاً للمربع</p>
-    <input type="text" id="nameInput" placeholder="مثال: ماء، رياضة، مهام..." maxlength="30" autocomplete="off">
+    <h3>إضافة مسبحة جديدة</h3>
+    <p>اكتب اسماً واضحاً للمسبحة</p>
+    <input type="text" id="nameInput" placeholder="مثال: استغفار، تسبيح، الصلاة على النبى..." maxlength="30" autocomplete="off">
     <div class="actions">
       <button class="btn-cancel" id="cancelAdd">إلغاء</button>
       <button class="btn-confirm" id="confirmAdd">إضافة</button>
@@ -279,8 +279,8 @@
 <!-- نافذة تأكيد الحذف -->
 <div class="overlay" id="delOverlay">
   <div class="dialog">
-    <h3>حذف المربع</h3>
-    <p id="delText">هل أنت متأكد من حذف هذا المربع؟ لا يمكن التراجع.</p>
+    <h3>حذف المسبحة</h3>
+    <p id="delText">هل أنت متأكد من حذف هذه المسبحة؟ لا يمكن التراجع.</p>
     <div class="actions">
       <button class="btn-cancel" id="cancelDel">إلغاء</button>
       <button class="btn-danger" id="confirmDel">حذف</button>

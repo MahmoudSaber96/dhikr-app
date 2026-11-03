@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0f172a">
-<title>يَا أَيُّهَا الَّذِينَ آمَنُوا اذْكُرُوا اللَّهَ ذِكْرًا كَثِيرًا</title>
+<title>ذِكر - عداد الأذكار</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.png">
 <script>
@@ -111,7 +111,7 @@
     backdrop-filter: blur(16px) saturate(160%);
     -webkit-backdrop-filter: blur(16px) saturate(160%);
     box-shadow: 0 8px 24px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.25);
-    transition: transform 0.12s ease, box-shadow 0.25s;
+    transition: transform 0.12s ease, box-shadow 0.25s, border-color 0.3s;
     overflow: hidden;
     animation: pop 0.3s ease;
   }
@@ -122,8 +122,20 @@
     opacity: 0.35;
     border-radius: 20px;
     pointer-events: none;
+    transition: opacity 0.3s;
   }
   .counter:active { transform: scale(0.96); }
+  
+  /* حالة الوصول للهدف */
+  .counter.target-reached {
+    border-color: #22c55e;
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.4), inset 0 1px 0 rgba(255,255,255,0.25);
+  }
+  .counter.target-reached::before {
+    background: linear-gradient(135deg, rgba(34,197,94,0.6), rgba(20,184,166,0.5));
+    opacity: 0.8;
+  }
+
   .counter .name {
     position: relative; z-index: 1;
     font-size: 15px; font-weight: 700;
@@ -141,11 +153,21 @@
     font-variant-numeric: tabular-nums;
     letter-spacing: -1px;
   }
+  .counter .target-info {
+    position: relative; z-index: 1;
+    font-size: 11px;
+    font-weight: 700;
+    color: #3b82f6;
+    margin-top: 4px;
+    opacity: 0.9;
+  }
+  body.dark .counter .target-info { color: #60a5fa; }
+  
   .counter .hint {
     position: relative; z-index: 1;
     font-size: 10px;
     color: var(--text-soft);
-    margin-top: 8px;
+    margin-top: 4px;
     opacity: 0.75;
   }
   @keyframes pop {
@@ -163,7 +185,7 @@
   }
   .empty .big { font-size: 44px; margin-bottom: 10px; }
 
-  /* نافذة الإضافة */
+  /* النوافذ المنبثقة */
   .overlay {
     position: fixed; inset: 0; z-index: 100;
     background: rgba(0,0,0,0.5);
@@ -191,11 +213,14 @@
     from { transform: translateY(30px) scale(0.95); opacity: 0; }
     to { transform: translateY(0) scale(1); opacity: 1; }
   }
-  .dialog h3 {
-    margin: 0 0 14px; font-size: 18px; font-weight: 700;
-  }
+  .dialog h3 { margin: 0 0 14px; font-size: 18px; font-weight: 700; }
   .dialog p { margin: 0 0 16px; font-size: 14px; color: var(--text-soft); line-height: 1.6; }
-  .dialog input {
+  
+  .input-group { margin-bottom: 14px; text-align: right; }
+  .input-group label {
+    display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--text);
+  }
+  .dialog input[type="text"], .dialog input[type="number"] {
     width: 100%;
     padding: 14px 16px;
     border-radius: 14px;
@@ -205,20 +230,14 @@
     font-size: 16px;
     outline: none;
     transition: border 0.2s;
-    margin-bottom: 16px;
     font-family: inherit;
   }
   .dialog input:focus { border-color: #8b5cf6; }
-  .dialog .actions { display: flex; gap: 10px; }
+  
+  .dialog .actions { display: flex; gap: 10px; margin-top: 20px; }
   .dialog .actions button {
-    flex: 1;
-    padding: 13px;
-    border-radius: 14px;
-    border: none;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: inherit;
+    flex: 1; padding: 13px; border-radius: 14px; border: none;
+    font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit;
     transition: transform 0.15s;
   }
   .dialog .actions button:active { transform: scale(0.96); }
@@ -226,22 +245,35 @@
   .btn-confirm { background: linear-gradient(135deg,#6366f1,#8b5cf6); color: #fff; }
   .btn-danger { background: linear-gradient(135deg,#ef4444,#dc2626); color:#fff; }
 
+  /* إعدادات (Toggles) */
+  .setting-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 0; border-bottom: 1px solid var(--card-border);
+    font-size: 15px; font-weight: 600;
+  }
+  .setting-row:last-of-type { border-bottom: none; }
+  /* Switch Toggle CSS */
+  .switch { position: relative; display: inline-block; width: 46px; height: 26px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+    background-color: rgba(148,163,184,0.4); transition: .4s; border-radius: 34px;
+  }
+  .slider:before {
+    position: absolute; content: ""; height: 18px; width: 18px;
+    left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;
+  }
+  input:checked + .slider { background-color: #8b5cf6; }
+  input:checked + .slider:before { transform: translateX(20px); }
+
   /* رسالة Toast */
   .toast {
     position: fixed;
     bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
-    background: rgba(15,23,42,0.92);
-    color: #fff;
-    padding: 12px 22px;
-    border-radius: 30px;
-    font-size: 14px;
-    font-weight: 600;
-    z-index: 200;
-    opacity: 0;
-    transition: all 0.35s cubic-bezier(0.2,0.9,0.3,1.2);
-    pointer-events: none;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: rgba(15,23,42,0.92); color: #fff; padding: 12px 22px;
+    border-radius: 30px; font-size: 14px; font-weight: 600; z-index: 200;
+    opacity: 0; transition: all 0.35s cubic-bezier(0.2,0.9,0.3,1.2);
+    pointer-events: none; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     box-shadow: 0 8px 30px rgba(0,0,0,0.3);
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
@@ -250,9 +282,10 @@
 <body>
 
 <div class="topbar">
-  <h1>يَا أَيُّهَا الَّذِينَ آمَنُوا اذْكُرُوا اللَّهَ ذِكْرًا كَثِيرًا</h1>
+  <h1>ذِكر</h1>
+  <button class="icon-btn" id="settingsBtn" title="الإعدادات">⚙️</button>
   <button class="icon-btn" id="themeBtn" title="تبديل المظهر">🌙</button>
-  <button class="icon-btn add-btn" id="addBtn" title="إضافة مربع">＋</button>
+  <button class="icon-btn add-btn" id="addBtn" title="إضافة مسبحة">＋</button>
 </div>
 
 <div class="grid" id="grid"></div>
@@ -267,11 +300,41 @@
 <div class="overlay" id="addOverlay">
   <div class="dialog">
     <h3>إضافة مسبحة جديدة</h3>
-    <p>اكتب اسماً واضحاً للمسبحة</p>
-    <input type="text" id="nameInput" placeholder="مثال: استغفار، تسبيح، الصلاة على النبى..." maxlength="30" autocomplete="off">
+    <div class="input-group">
+      <label>اسم المسبحة / الذكر</label>
+      <input type="text" id="nameInput" placeholder="مثال: استغفار، تسبيح..." maxlength="30" autocomplete="off">
+    </div>
+    <div class="input-group">
+      <label>الهدف (اختياري)</label>
+      <input type="number" id="targetInput" placeholder="مثال: 33، 100" min="1" max="99999">
+    </div>
     <div class="actions">
       <button class="btn-cancel" id="cancelAdd">إلغاء</button>
       <button class="btn-confirm" id="confirmAdd">إضافة</button>
+    </div>
+  </div>
+</div>
+
+<!-- نافذة الإعدادات -->
+<div class="overlay" id="settingsOverlay">
+  <div class="dialog">
+    <h3>الإعدادات</h3>
+    <div class="setting-row">
+      <span>صوت النقر العادي</span>
+      <label class="switch">
+        <input type="checkbox" id="soundToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="setting-row">
+      <span>صوت تحقيق الهدف</span>
+      <label class="switch">
+        <input type="checkbox" id="targetSoundToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+    <div class="actions">
+      <button class="btn-confirm" id="closeSettings">حسناً</button>
     </div>
   </div>
 </div>
@@ -292,67 +355,162 @@
 
 <script>
 (function(){
-  const STORAGE_KEY = 'tap_counter_data_v1';
-  const THEME_KEY = 'tap_counter_theme_v1';
+  const STORAGE_KEY = 'tap_counter_data_v4'; 
+  const THEME_KEY = 'tap_counter_theme_v4';
+  const SETTINGS_KEY = 'tap_counter_settings_v4';
+
   const PALETTE = [
     'linear-gradient(135deg, rgba(99,102,241,0.45), rgba(139,92,246,0.35))',
     'linear-gradient(135deg, rgba(236,72,153,0.45), rgba(244,63,94,0.35))',
-    'linear-gradient(135deg, rgba(34,197,94,0.45), rgba(20,184,166,0.35))',
-    'linear-gradient(135deg, rgba(249,115,22,0.45), rgba(234,179,8,0.35))',
     'linear-gradient(135deg, rgba(59,130,246,0.45), rgba(14,165,233,0.35))',
-    'linear-gradient(135deg, rgba(168,85,247,0.45), rgba(217,70,239,0.35))',
+    'linear-gradient(135deg, rgba(249,115,22,0.45), rgba(234,179,8,0.35))',
     'linear-gradient(135deg, rgba(20,184,166,0.45), rgba(34,211,238,0.35))',
-    'linear-gradient(135deg, rgba(244,63,94,0.45), rgba(251,146,60,0.35))'
+    'linear-gradient(135deg, rgba(168,85,247,0.45), rgba(217,70,239,0.35))',
+    'linear-gradient(135deg, rgba(244,63,94,0.45), rgba(251,146,60,0.35))',
+    'linear-gradient(135deg, rgba(100,116,139,0.45), rgba(148,163,184,0.35))'
   ];
 
-  let data = [];        // [{id, name, count, tint}]
+  let data = [];
   let pendingDelete = null;
   let pressTimer = null;
   let longPressed = false;
+  let audioCtx = null;
+
+  // إعدادات الصوت مفصولة
+  let settings = { 
+    soundClick: true, 
+    soundTarget: true 
+  };
 
   const grid = document.getElementById('grid');
   const emptyState = document.getElementById('emptyState');
-  const addBtn = document.getElementById('addBtn');
-  const themeBtn = document.getElementById('themeBtn');
-  const addOverlay = document.getElementById('addOverlay');
-  const delOverlay = document.getElementById('delOverlay');
-  const nameInput = document.getElementById('nameInput');
-  const toastEl = document.getElementById('toast');
-
+  
   /* ---------- التخزين ---------- */
   function load(){
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       data = raw ? JSON.parse(raw) : [];
       if (!Array.isArray(data)) data = [];
+      
+      const rawSet = localStorage.getItem(SETTINGS_KEY);
+      if (rawSet) settings = { ...settings, ...JSON.parse(rawSet) };
     } catch(e){ data = []; }
+    
+    document.getElementById('soundToggle').checked = settings.soundClick;
+    document.getElementById('targetSoundToggle').checked = settings.soundTarget;
   }
   function save(){
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e){}
+    try { 
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    } catch(e){}
   }
 
   /* ---------- الثيم ---------- */
   function applyTheme(mode){
     document.body.classList.toggle('dark', mode === 'dark');
-    themeBtn.textContent = mode === 'dark' ? '☀️' : '🌙';
+    document.getElementById('themeBtn').textContent = mode === 'dark' ? '☀️' : '🌙';
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', mode === 'dark' ? '#0b1120' : '#eef2f7');
   }
   let themeMode = localStorage.getItem(THEME_KEY) || 'light';
   applyTheme(themeMode);
-  themeBtn.addEventListener('click', () => {
+  document.getElementById('themeBtn').addEventListener('click', () => {
     themeMode = themeMode === 'dark' ? 'light' : 'dark';
     localStorage.setItem(THEME_KEY, themeMode);
     applyTheme(themeMode);
   });
 
+  /* ---------- الصوت ---------- */
+  // تكة عادية قصيرة
+  function playTick() {
+    if (!settings.soundClick) return;
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.05);
+      
+      gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+      
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.05);
+    } catch(e) {}
+  }
+
+  // تكة طويلة ومميزة للهدف
+  function playTargetSound() {
+    if (!settings.soundTarget) return;
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.25);
+      
+      gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+      
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.25);
+    } catch(e) {}
+  }
+
+  /* ---------- الإعدادات ---------- */
+  document.getElementById('settingsBtn').addEventListener('click', () => {
+    document.getElementById('settingsOverlay').classList.add('show');
+  });
+  document.getElementById('closeSettings').addEventListener('click', () => {
+    document.getElementById('settingsOverlay').classList.remove('show');
+  });
+  
+  document.getElementById('soundToggle').addEventListener('change', (e) => {
+    settings.soundClick = e.target.checked;
+    save();
+    if(settings.soundClick) playTick(); 
+  });
+  
+  document.getElementById('targetSoundToggle').addEventListener('change', (e) => {
+    settings.soundTarget = e.target.checked;
+    save();
+    if(settings.soundTarget) playTargetSound(); 
+  });
+
   /* ---------- Toast ---------- */
   let toastTimer;
   function toast(msg){
+    const toastEl = document.getElementById('toast');
     toastEl.textContent = msg;
     toastEl.classList.add('show');
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1800);
+  }
+
+  /* ---------- توليد لون فريد ---------- */
+  function getUniqueColor() {
+    if (data.length < PALETTE.length) {
+      const usedColors = data.map(d => d.tint);
+      const availableColors = PALETTE.filter(c => !usedColors.includes(c));
+      return availableColors[Math.floor(Math.random() * availableColors.length)];
+    } else {
+      return PALETTE[Math.floor(Math.random() * PALETTE.length)];
+    }
   }
 
   /* ---------- رسم الشبكة ---------- */
@@ -364,28 +522,70 @@
       const el = document.createElement('div');
       el.className = 'counter';
       el.style.setProperty('--tint', item.tint || PALETTE[0]);
+      
+      let isTargetReached = item.target && item.count >= item.target;
+      if (isTargetReached) el.classList.add('target-reached');
+
       el.dataset.id = item.id;
 
+      let hintText = item.count === 0 ? 'اضغط للزيادة • اضغط مطولاً للحذف' : 'اضغط للزيادة • اضغط مطولاً للتصفير';
+      
       el.innerHTML = `
         <div class="name">${escapeHtml(item.name)}</div>
         <div class="count">${item.count}</div>
-        <div class="hint">اضغط للزيادة • اضغط مطولاً للحذف</div>
+        ${item.target ? `<div class="target-info">الهدف: ${item.target}</div>` : ''}
+        <div class="hint">${hintText}</div>
       `;
 
-      // نقر عادي = زيادة
-      el.addEventListener('click', () => {
+      // دعم اللمس للهواتف
+      let touchMoved = false;
+      el.addEventListener('touchstart', () => { touchMoved = false; }, { passive: true });
+      el.addEventListener('touchmove', () => { touchMoved = true; }, { passive: true });
+
+      el.addEventListener('touchend', (e) => {
+        if (touchMoved) return; 
         if (longPressed) { longPressed = false; return; }
+        
         const it = data.find(d => d.id === item.id);
         if (!it) return;
-        it.count++;
-        el.querySelector('.count').textContent = it.count;
         
-        // تحديث النص
-        const hintEl = el.querySelector('.hint');
-        if(hintEl) hintEl.textContent = 'اضغط للزيادة • اضغط مطولاً للتصفير';
+        it.count++;
+        playTick();
+
+        el.querySelector('.count').textContent = it.count;
+        el.querySelector('.hint').textContent = 'اضغط للزيادة • اضغط مطولاً للتصفير';
+        
+        if (it.target && it.count === it.target) {
+           el.classList.add('target-reached');
+           playTargetSound(); 
+           toast('🎉 تم الوصول للهدف: ' + it.name);
+        } else if (it.target && it.count > it.target) {
+           el.classList.add('target-reached');
+        }
         
         save();
-        });
+      });
+
+      // دعم الماوس للكمبيوتر
+      el.addEventListener('click', (e) => {
+        if (e.pointerType === 'mouse' || e.pointerType === 'pen') {
+          if (longPressed) { longPressed = false; return; }
+          const it = data.find(d => d.id === item.id);
+          if (!it) return;
+          it.count++;
+          playTick();
+          el.querySelector('.count').textContent = it.count;
+          el.querySelector('.hint').textContent = 'اضغط للزيادة • اضغط مطولاً للتصفير';
+          if (it.target && it.count === it.target) {
+             el.classList.add('target-reached');
+             playTargetSound();
+             toast('🎉 تم الوصول للهدف: ' + it.name);
+          } else if (it.target && it.count > it.target) {
+             el.classList.add('target-reached');
+          }
+          save();
+        }
+      });
 
       // ضغط طويل = تصفير أو طلب حذف
       el.addEventListener('pointerdown', (e) => {
@@ -397,23 +597,18 @@
           if (it.count > 0) {
             it.count = 0;
             el.querySelector('.count').textContent = 0;
-            
-            // تحديث النص بعد التصفير
-            const hintEl = el.querySelector('.hint');
-            if(hintEl) hintEl.textContent = 'اضغط للزيادة • اضغط مطولاً للحذف';
-            
+            el.querySelector('.hint').textContent = 'اضغط للزيادة • اضغط مطولاً للحذف';
+            el.classList.remove('target-reached'); 
             save();
             toast('تم تصفير: ' + it.name);
-            if (navigator.vibrate) navigator.vibrate(30);
           } else {
             pendingDelete = item.id;
-            document.getElementById('delText').textContent =
-              'حذف "' + it.name + '"؟ لا يمكن التراجع.';
-            delOverlay.classList.add('show');
-            if (navigator.vibrate) navigator.vibrate([20,50,20]);
+            document.getElementById('delText').textContent = 'حذف "' + it.name + '"؟ لا يمكن التراجع.';
+            document.getElementById('delOverlay').classList.add('show');
           }
         }, 600);
       });
+      
       ['pointerup','pointerleave','pointercancel'].forEach(evt => {
         el.addEventListener(evt, () => { clearTimeout(pressTimer); });
       });
@@ -428,41 +623,46 @@
     }[c]));
   }
 
-  /* ---------- إضافة مربع ---------- */
-  function openAdd(){
-    nameInput.value = '';
-    addOverlay.classList.add('show');
-    setTimeout(() => nameInput.focus(), 100);
-  }
-  function closeAdd(){ addOverlay.classList.remove('show'); }
+  /* ---------- إضافة مسبحة ---------- */
+  document.getElementById('addBtn').addEventListener('click', () => {
+    document.getElementById('nameInput').value = '';
+    document.getElementById('targetInput').value = '';
+    document.getElementById('addOverlay').classList.add('show');
+    setTimeout(() => document.getElementById('nameInput').focus(), 100);
+  });
+  
+  document.getElementById('cancelAdd').addEventListener('click', () => {
+    document.getElementById('addOverlay').classList.remove('show');
+  });
 
   function doAdd(){
-    const name = nameInput.value.trim();
-    if (!name) { nameInput.focus(); return; }
+    const name = document.getElementById('nameInput').value.trim();
+    const targetVal = parseInt(document.getElementById('targetInput').value);
+    if (!name) { document.getElementById('nameInput').focus(); return; }
+    
     const item = {
       id: 'c_' + Date.now() + '_' + Math.floor(Math.random()*9999),
       name: name,
       count: 0,
-      tint: PALETTE[Math.floor(Math.random() * PALETTE.length)]
+      target: (targetVal > 0) ? targetVal : null,
+      tint: getUniqueColor()
     };
     data.push(item);
     save();
-    closeAdd();
+    document.getElementById('addOverlay').classList.remove('show');
     render();
     toast('تمت إضافة: ' + name);
   }
 
-  addBtn.addEventListener('click', openAdd);
-  document.getElementById('cancelAdd').addEventListener('click', closeAdd);
   document.getElementById('confirmAdd').addEventListener('click', doAdd);
-  nameInput.addEventListener('keydown', e => {
+  document.getElementById('nameInput').addEventListener('keydown', e => {
     if (e.key === 'Enter') doAdd();
   });
 
   /* ---------- حذف ---------- */
   document.getElementById('cancelDel').addEventListener('click', () => {
     pendingDelete = null;
-    delOverlay.classList.remove('show');
+    document.getElementById('delOverlay').classList.remove('show');
   });
   document.getElementById('confirmDel').addEventListener('click', () => {
     if (pendingDelete) {
@@ -473,11 +673,11 @@
       toast(it ? 'تم حذف: ' + it.name : 'تم الحذف');
     }
     pendingDelete = null;
-    delOverlay.classList.remove('show');
+    document.getElementById('delOverlay').classList.remove('show');
   });
 
-  // إغلاق النوافذ بالضغط على الخلفية
-  [addOverlay, delOverlay].forEach(ov => {
+  ['addOverlay', 'delOverlay', 'settingsOverlay'].forEach(id => {
+    const ov = document.getElementById(id);
     ov.addEventListener('click', e => {
       if (e.target === ov) ov.classList.remove('show');
     });

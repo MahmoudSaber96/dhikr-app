@@ -1,7 +1,7 @@
 {
   "name": "ذِكر - عداد الأذكار",
   "short_name": "ذِكر",
-  "description": "تطبيق بسيط لعد الأذكار والنقرات",
+  "description": "تطبيق بسيط لعد الأذكار ومساعدتك لتحقيق وردك اليومي من الاذكار",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0b1120",

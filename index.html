@@ -4,312 +4,123 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0f172a">
-<title>ذِكر - عداد الأذكار</title>
+<title>ذِكر - رفيقك اليومي</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.png">
+<!-- ربط ملف التصميم -->
+<link rel="stylesheet" href="style.css">
+<!-- ربط ملف الرسائل اليومية -->
+<script src="messages.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js')
-        .then(reg => console.log('SW registered!', reg))
+        .then(reg => console.log('SW registered!'))
         .catch(err => console.log('SW registration failed:', err));
     });
   }
 </script>
-<style>
-  :root {
-    --bg1: #eef2f7;
-    --bg2: #dfe7f1;
-    --card-glass: rgba(255,255,255,0.55);
-    --card-border: rgba(255,255,255,0.7);
-    --text: #0f172a;
-    --text-soft: #475569;
-    --shadow: rgba(15,23,42,0.15);
-    --btn-bg: rgba(255,255,255,0.65);
-    --btn-text: #0f172a;
-    --topbar: rgba(255,255,255,0.6);
-  }
-  body.dark {
-    --bg1: #0b1120;
-    --bg2: #131c31;
-    --card-glass: rgba(30,41,59,0.55);
-    --card-border: rgba(148,163,184,0.25);
-    --text: #f1f5f9;
-    --text-soft: #94a3b8;
-    --shadow: rgba(0,0,0,0.45);
-    --btn-bg: rgba(30,41,59,0.7);
-    --btn-text: #f1f5f9;
-    --topbar: rgba(15,23,42,0.7);
-  }
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body {
-    margin: 0; padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-    background: linear-gradient(135deg, var(--bg1), var(--bg2));
-    color: var(--text);
-    min-height: 100vh;
-    transition: background 0.35s, color 0.35s;
-  }
-  body {
-    background-attachment: fixed;
-    padding-bottom: 90px;
-  }
-
-  /* شريط علوي */
-  .topbar {
-    position: sticky; top: 0; z-index: 20;
-    display: flex; align-items: center; gap: 10px;
-    padding: 12px 14px;
-    background: var(--topbar);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    border-bottom: 1px solid var(--card-border);
-  }
-  .topbar h1 {
-    font-size: 17px; margin: 0; flex: 1;
-    font-weight: 700; letter-spacing: 0.3px;
-  }
-  .icon-btn {
-    width: 42px; height: 42px; border-radius: 12px;
-    border: 1px solid var(--card-border);
-    background: var(--btn-bg);
-    color: var(--btn-text);
-    font-size: 20px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: transform 0.15s, background 0.25s;
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-  }
-  .icon-btn:active { transform: scale(0.92); }
-  .add-btn { background: linear-gradient(135deg,#6366f1,#8b5cf6); color:#fff; border:none; font-weight:700; }
-
-  /* الشبكة */
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 14px;
-    padding: 16px;
-  }
-  @media (min-width: 600px) {
-    .grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
-  }
-
-  /* المسبحة */
-  .counter {
-    position: relative;
-    border-radius: 20px;
-    padding: 16px 12px;
-    min-height: 150px;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    text-align: center;
-    cursor: pointer;
-    user-select: none;
-    -webkit-user-select: none;
-    border: 1px solid var(--card-border);
-    background: var(--card-glass);
-    backdrop-filter: blur(16px) saturate(160%);
-    -webkit-backdrop-filter: blur(16px) saturate(160%);
-    box-shadow: 0 8px 24px var(--shadow), inset 0 1px 0 rgba(255,255,255,0.25);
-    transition: transform 0.12s ease, box-shadow 0.25s, border-color 0.3s;
-    overflow: hidden;
-    animation: pop 0.3s ease;
-  }
-  .counter::before {
-    content: "";
-    position: absolute; inset: 0;
-    background: var(--tint, transparent);
-    opacity: 0.35;
-    border-radius: 20px;
-    pointer-events: none;
-    transition: opacity 0.3s;
-  }
-  .counter:active { transform: scale(0.96); }
-  
-  /* حالة الوصول للهدف */
-  .counter.target-reached {
-    border-color: #22c55e;
-    box-shadow: 0 0 15px rgba(34, 197, 94, 0.4), inset 0 1px 0 rgba(255,255,255,0.25);
-  }
-  .counter.target-reached::before {
-    background: linear-gradient(135deg, rgba(34,197,94,0.6), rgba(20,184,166,0.5));
-    opacity: 0.8;
-  }
-
-  .counter .name {
-    position: relative; z-index: 1;
-    font-size: 15px; font-weight: 700;
-    color: var(--text);
-    word-break: break-word;
-    line-height: 1.3;
-    margin-bottom: 6px;
-    text-shadow: 0 1px 2px rgba(255,255,255,0.15);
-  }
-  .counter .count {
-    position: relative; z-index: 1;
-    font-size: 44px; font-weight: 800;
-    color: var(--text);
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -1px;
-  }
-  .counter .target-info {
-    position: relative; z-index: 1;
-    font-size: 11px;
-    font-weight: 700;
-    color: #3b82f6;
-    margin-top: 4px;
-    opacity: 0.9;
-  }
-  body.dark .counter .target-info { color: #60a5fa; }
-  
-  .counter .hint {
-    position: relative; z-index: 1;
-    font-size: 10px;
-    color: var(--text-soft);
-    margin-top: 4px;
-    opacity: 0.75;
-  }
-  @keyframes pop {
-    from { transform: scale(0.8); opacity: 0; }
-    to { transform: scale(1); opacity: 1; }
-  }
-
-  /* حالة الفراغ */
-  .empty {
-    text-align: center;
-    padding: 60px 24px;
-    color: var(--text-soft);
-    font-size: 15px;
-    line-height: 1.8;
-  }
-  .empty .big { font-size: 44px; margin-bottom: 10px; }
-
-  /* النوافذ المنبثقة */
-  .overlay {
-    position: fixed; inset: 0; z-index: 100;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    display: none;
-    align-items: center; justify-content: center;
-    padding: 20px;
-  }
-  .overlay.show { display: flex; animation: fade 0.2s; }
-  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-
-  .dialog {
-    width: 100%; max-width: 380px;
-    background: var(--card-glass);
-    border: 1px solid var(--card-border);
-    backdrop-filter: blur(24px) saturate(180%);
-    -webkit-backdrop-filter: blur(24px) saturate(180%);
-    border-radius: 22px;
-    padding: 22px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.35);
-    animation: slideUp 0.3s cubic-bezier(0.2,0.9,0.3,1.2);
-  }
-  @keyframes slideUp {
-    from { transform: translateY(30px) scale(0.95); opacity: 0; }
-    to { transform: translateY(0) scale(1); opacity: 1; }
-  }
-  .dialog h3 { margin: 0 0 14px; font-size: 18px; font-weight: 700; }
-  .dialog p { margin: 0 0 16px; font-size: 14px; color: var(--text-soft); line-height: 1.6; }
-  
-  .input-group { margin-bottom: 14px; text-align: right; }
-  .input-group label {
-    display: block; font-size: 13px; font-weight: 700; margin-bottom: 6px; color: var(--text);
-  }
-  .dialog input[type="text"], .dialog input[type="number"] {
-    width: 100%;
-    padding: 14px 16px;
-    border-radius: 14px;
-    border: 1px solid var(--card-border);
-    background: rgba(127,127,127,0.12);
-    color: var(--text);
-    font-size: 16px;
-    outline: none;
-    transition: border 0.2s;
-    font-family: inherit;
-  }
-  .dialog input:focus { border-color: #8b5cf6; }
-  
-  .dialog .actions { display: flex; gap: 10px; margin-top: 20px; }
-  .dialog .actions button {
-    flex: 1; padding: 13px; border-radius: 14px; border: none;
-    font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit;
-    transition: transform 0.15s;
-  }
-  .dialog .actions button:active { transform: scale(0.96); }
-  .btn-cancel { background: var(--btn-bg); color: var(--text); border: 1px solid var(--card-border) !important; }
-  .btn-confirm { background: linear-gradient(135deg,#6366f1,#8b5cf6); color: #fff; }
-  .btn-danger { background: linear-gradient(135deg,#ef4444,#dc2626); color:#fff; }
-
-  /* إعدادات (Toggles) */
-  .setting-row {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 0; border-bottom: 1px solid var(--card-border);
-    font-size: 15px; font-weight: 600;
-  }
-  .setting-row:last-of-type { border-bottom: none; }
-  /* Switch Toggle CSS */
-  .switch { position: relative; display: inline-block; width: 46px; height: 26px; }
-  .switch input { opacity: 0; width: 0; height: 0; }
-  .slider {
-    position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-    background-color: rgba(148,163,184,0.4); transition: .4s; border-radius: 34px;
-  }
-  .slider:before {
-    position: absolute; content: ""; height: 18px; width: 18px;
-    left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%;
-  }
-  input:checked + .slider { background-color: #8b5cf6; }
-  input:checked + .slider:before { transform: translateX(20px); }
-
-  /* رسالة Toast */
-  .toast {
-    position: fixed;
-    bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
-    background: rgba(15,23,42,0.92); color: #fff; padding: 12px 22px;
-    border-radius: 30px; font-size: 14px; font-weight: 600; z-index: 200;
-    opacity: 0; transition: all 0.35s cubic-bezier(0.2,0.9,0.3,1.2);
-    pointer-events: none; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-  }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-</style>
 </head>
 <body>
 
+<!-- شاشة الترحيب -->
+<div id="onboardingOverlay">
+  <div class="onboarding-card active" id="ob-card-1">
+    <div class="ob-image-placeholder"><span class="ob-icon-float">📿</span></div>
+    <h2>أهلاً بك في ذِكر</h2>
+    <p>رفيقك اليومي البسيط لتنظيم وردك من الأذكار. تطبيق خفيف، سريع، وخالي تماماً من الإعلانات والمشتتات ليعينك على الذكر بتركيز وخشوع.</p>
+    <div class="ob-dots"><span class="ob-dot active"></span><span class="ob-dot"></span><span class="ob-dot"></span><span class="ob-dot"></span></div>
+    <button class="ob-btn" onclick="nextOnboarding(2)">التالي</button>
+  </div>
+  <div class="onboarding-card" id="ob-card-2">
+    <div class="ob-image-placeholder"><span class="ob-icon-float">➕</span></div>
+    <h2>أضف أذكارك وحدد هدفك</h2>
+    <p>اضغط على زر (＋) لإضافة ذكر جديد. يمكنك تحديد عدد مستهدف (مثل 33 أو 100). وعند اكتمال العدد، يتحول المربع للأخضر احتفاءً بإنجازك!</p>
+    <div class="ob-dots"><span class="ob-dot"></span><span class="ob-dot active"></span><span class="ob-dot"></span><span class="ob-dot"></span></div>
+    <button class="ob-btn" onclick="nextOnboarding(3)">التالي</button>
+  </div>
+  <div class="onboarding-card" id="ob-card-3">
+    <div class="ob-image-placeholder"><span class="ob-icon-float">🎯</span></div>
+    <h2>وضع التركيز (Focus Mode)</h2>
+    <p>إذا أردت التركيز التام، اضغط على أيقونة (🎯) في أي مسبحة لملء الشاشة. وإذا خرجت من التطبيق، سيتوقف العداد حتى تعود، لتشجيعك على الاستمرار.</p>
+    <div class="ob-dots"><span class="ob-dot"></span><span class="ob-dot"></span><span class="ob-dot active"></span><span class="ob-dot"></span></div>
+    <button class="ob-btn" onclick="nextOnboarding(4)">التالي</button>
+  </div>
+  <div class="onboarding-card" id="ob-card-4">
+    <div class="ob-image-placeholder"><span class="ob-icon-float">🏆</span></div>
+    <h2>اجمع الإنجازات</h2>
+    <p>مع كل هدف تكمله، تفتح أوسمة جديدة. تابع إحصائياتك وإنجازاتك من زر (🏆) بالأعلى، وتقبل الله منك.</p>
+    <div class="ob-dots"><span class="ob-dot"></span><span class="ob-dot"></span><span class="ob-dot"></span><span class="ob-dot active"></span></div>
+    <button class="ob-btn" onclick="finishOnboarding()">ابدأ الآن</button>
+  </div>
+</div>
+
 <div class="topbar">
-  <h1>ذِكر</h1>
-  <button class="icon-btn" id="settingsBtn" title="الإعدادات">⚙️</button>
-  <button class="icon-btn" id="themeBtn" title="تبديل المظهر">🌙</button>
-  <button class="icon-btn add-btn" id="addBtn" title="إضافة مسبحة">＋</button>
+  <div class="topbar-row">
+    <h1>ذِكر 📿</h1>
+    <div class="stats-container">
+      <div class="stat-badge badge-green">🎯 <span id="targetsDisplay">0</span></div>
+      <div class="stat-badge badge-purple">📿 <span id="dhikrDisplay">0</span></div>
+    </div>
+  </div>
+  <div class="topbar-row" style="justify-content: flex-end; gap: 8px;">
+    <button class="icon-btn" id="achievementsBtn" title="الإنجازات">🏆</button>
+    <button class="icon-btn" id="settingsBtn" title="الإعدادات">⚙️</button>
+    <button class="icon-btn" id="themeBtn" title="المظهر">🌙</button>
+    <button class="icon-btn add-btn" id="addBtn" title="إضافة ذكر">＋</button>
+  </div>
 </div>
 
 <div class="grid" id="grid"></div>
-
 <div class="empty" id="emptyState">
-  <div class="big">📊</div>
-  لا توجد مسبحة بعد<br>
-  اضغط زر <b>＋</b> بالأعلى لإضافة أول مسبحة
+  <div class="big">🌱</div>
+  ابدأ وردك الآن..<br>اضغط <b>＋</b> لإضافة أول ذكر
+</div>
+
+<!-- شريط رسالة اليوم -->
+<div class="daily-bar" id="dailyBar" onclick="openDailyMessage(event)">
+  <div class="daily-bar-content">
+    <span>📜 رسالة اليوم</span>
+  </div>
+  <button class="daily-close-btn" onclick="closeDailyBar(event)">✕</button>
+</div>
+
+<!-- شاشة قراءة الرسالة -->
+<div class="overlay" id="messageOverlay">
+  <div class="msg-content-box">
+    <div class="msg-type-badge" id="msgType">آية قرآنية</div>
+    <div class="msg-text-display" id="msgText">جاري التحميل...</div>
+    <div class="msg-source-display" id="msgSource">-</div>
+    <div class="msg-actions">
+      <button class="btn-msg-copy" onclick="copyMessage()">📋 نسخ</button>
+      <button class="btn-msg-close" onclick="closeMsgAndBar()">إغلاق</button>
+    </div>
+  </div>
 </div>
 
 <!-- نافذة الإضافة -->
 <div class="overlay" id="addOverlay">
   <div class="dialog">
-    <h3>إضافة مسبحة جديدة</h3>
+    <h3>إضافة ذكر جديد</h3>
     <div class="input-group">
-      <label>اسم المسبحة / الذكر</label>
-      <input type="text" id="nameInput" placeholder="مثال: استغفار، تسبيح..." maxlength="30" autocomplete="off">
+      <label>اسم الذكر</label>
+      <input type="text" id="nameInput" placeholder="مثال: استغفار، تسبيح..." maxlength="30">
     </div>
     <div class="input-group">
-      <label>الهدف (اختياري)</label>
-      <input type="number" id="targetInput" placeholder="مثال: 33، 100" min="1" max="99999">
+      <label>الهدف / العدد المطلوب (اختياري)</label>
+      <input type="number" id="targetInput" placeholder="مثال: 33، 100" min="1">
+    </div>
+    <div style="margin-top: 15px; border-top: 1px solid var(--card-border); padding-top: 15px;">
+      <label style="font-size: 13px; font-weight:700; color: var(--text-soft); margin-bottom: 8px; display: block;">أو أضف من الورد اليومي:</label>
+      <div style="display:flex; gap: 8px; flex-wrap: wrap;">
+        <button onclick="addPreset('سبحان الله','33')" class="preset-btn">تسبيح (33)</button>
+        <button onclick="addPreset('الحمد لله','33')" class="preset-btn">تحميد (33)</button>
+        <button onclick="addPreset('الله أكبر','34')" class="preset-btn">تكبير (34)</button>
+        <button onclick="addPreset('لا إله إلا الله','100')" class="preset-btn">تهليل (100)</button>
+      </div>
     </div>
     <div class="actions">
-      <button class="btn-cancel" id="cancelAdd">إلغاء</button>
+      <button class="btn-cancel" onclick="document.getElementById('addOverlay').classList.remove('show')">إلغاء</button>
       <button class="btn-confirm" id="confirmAdd">إضافة</button>
     </div>
   </div>
@@ -320,373 +131,78 @@
   <div class="dialog">
     <h3>الإعدادات</h3>
     <div class="setting-row">
-      <span>صوت النقر العادي</span>
-      <label class="switch">
-        <input type="checkbox" id="soundToggle">
-        <span class="slider"></span>
-      </label>
+      <span>صوت النقر</span>
+      <label class="switch"><input type="checkbox" id="soundToggle"><span class="slider"></span></label>
     </div>
     <div class="setting-row">
       <span>صوت تحقيق الهدف</span>
-      <label class="switch">
-        <input type="checkbox" id="targetSoundToggle">
-        <span class="slider"></span>
-      </label>
+      <label class="switch"><input type="checkbox" id="targetSoundToggle"><span class="slider"></span></label>
     </div>
     <div class="actions">
-      <button class="btn-confirm" id="closeSettings">حسناً</button>
+      <button class="btn-confirm" onclick="document.getElementById('settingsOverlay').classList.remove('show')">حسناً</button>
     </div>
+  </div>
+</div>
+
+<!-- نافذة الإنجازات -->
+<div class="overlay" id="achievementsOverlay">
+  <div class="dialog">
+    <h3>سجل إنجازاتك 🏆</h3>
+    <p style="font-size: 13px; color: var(--text-soft); margin-bottom: 15px;">
+      إجمالي الأذكار: <b id="totalDhikrDisplay">0</b> | 
+      الأهداف المحققة: <b id="totalTargetsDisplay">0</b>
+    </p>
+    <div class="achievement-list" id="achievementsList"></div>
+    <div class="actions">
+      <button class="btn-confirm" onclick="document.getElementById('achievementsOverlay').classList.remove('show')">إغلاق</button>
+    </div>
+  </div>
+</div>
+
+<!-- شاشة الاحتفال -->
+<div class="overlay" id="celebrateOverlay">
+  <div class="celebrate-content">
+    <div class="emoji">🎉</div>
+    <h2>ما شاء الله!</h2>
+    <p id="celebrateMsg">أتممت الهدف بنجاح، جعله الله في ميزان حسناتك.</p>
+    <button class="btn-confirm" style="padding: 12px 30px; border-radius: 20px; font-size: 16px;" onclick="document.getElementById('celebrateOverlay').classList.remove('show')">الحمد لله</button>
+  </div>
+</div>
+
+<!-- وضع التركيز -->
+<div class="overlay" id="focusOverlay">
+  <div class="focus-header" id="focusTitle">وضع التركيز</div>
+  <div>
+    <div class="focus-counter-display" id="focusCount">0</div>
+    <div class="focus-hint" id="focusHint">اضغط على الرقم للذكر</div>
+  </div>
+  <button class="focus-btn" onclick="exitFocusMode()">إنهاء التركيز</button>
+</div>
+
+<!-- شاشة الإيقاف -->
+<div class="overlay" id="pauseOverlay">
+  <div class="pause-content">
+    <h2>أين ذهبت؟ 🥺</h2>
+    <p>لقد توقف العداد لأنك خرجت من التطبيق.</p>
+    <button onclick="resumeFocusMode()">عودة للذكر</button>
   </div>
 </div>
 
 <!-- نافذة تأكيد الحذف -->
 <div class="overlay" id="delOverlay">
   <div class="dialog">
-    <h3>حذف المسبحة</h3>
-    <p id="delText">هل أنت متأكد من حذف هذه المسبحة؟ لا يمكن التراجع.</p>
+    <h3>حذف الذكر</h3>
+    <p id="delText">هل أنت متأكد من حذف هذا الذكر؟</p>
     <div class="actions">
-      <button class="btn-cancel" id="cancelDel">إلغاء</button>
-      <button class="btn-danger" id="confirmDel">حذف</button>
+      <button class="btn-cancel" onclick="document.getElementById('delOverlay').classList.remove('show')">إلغاء</button>
+      <button class="btn-confirm" id="confirmDel" style="background:#ef4444;">حذف</button>
     </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
-<script>
-(function(){
-  const STORAGE_KEY = 'tap_counter_data_v4'; 
-  const THEME_KEY = 'tap_counter_theme_v4';
-  const SETTINGS_KEY = 'tap_counter_settings_v4';
-
-  const PALETTE = [
-    'linear-gradient(135deg, rgba(99,102,241,0.45), rgba(139,92,246,0.35))',
-    'linear-gradient(135deg, rgba(236,72,153,0.45), rgba(244,63,94,0.35))',
-    'linear-gradient(135deg, rgba(59,130,246,0.45), rgba(14,165,233,0.35))',
-    'linear-gradient(135deg, rgba(249,115,22,0.45), rgba(234,179,8,0.35))',
-    'linear-gradient(135deg, rgba(20,184,166,0.45), rgba(34,211,238,0.35))',
-    'linear-gradient(135deg, rgba(168,85,247,0.45), rgba(217,70,239,0.35))',
-    'linear-gradient(135deg, rgba(244,63,94,0.45), rgba(251,146,60,0.35))',
-    'linear-gradient(135deg, rgba(100,116,139,0.45), rgba(148,163,184,0.35))'
-  ];
-
-  let data = [];
-  let pendingDelete = null;
-  let pressTimer = null;
-  let longPressed = false;
-  let audioCtx = null;
-
-  // إعدادات الصوت مفصولة
-  let settings = { 
-    soundClick: true, 
-    soundTarget: true 
-  };
-
-  const grid = document.getElementById('grid');
-  const emptyState = document.getElementById('emptyState');
-  
-  /* ---------- التخزين ---------- */
-  function load(){
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      data = raw ? JSON.parse(raw) : [];
-      if (!Array.isArray(data)) data = [];
-      
-      const rawSet = localStorage.getItem(SETTINGS_KEY);
-      if (rawSet) settings = { ...settings, ...JSON.parse(rawSet) };
-    } catch(e){ data = []; }
-    
-    document.getElementById('soundToggle').checked = settings.soundClick;
-    document.getElementById('targetSoundToggle').checked = settings.soundTarget;
-  }
-  function save(){
-    try { 
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-    } catch(e){}
-  }
-
-  /* ---------- الثيم ---------- */
-  function applyTheme(mode){
-    document.body.classList.toggle('dark', mode === 'dark');
-    document.getElementById('themeBtn').textContent = mode === 'dark' ? '☀️' : '🌙';
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', mode === 'dark' ? '#0b1120' : '#eef2f7');
-  }
-  let themeMode = localStorage.getItem(THEME_KEY) || 'light';
-  applyTheme(themeMode);
-  document.getElementById('themeBtn').addEventListener('click', () => {
-    themeMode = themeMode === 'dark' ? 'light' : 'dark';
-    localStorage.setItem(THEME_KEY, themeMode);
-    applyTheme(themeMode);
-  });
-
-  /* ---------- الصوت ---------- */
-  // تكة عادية قصيرة
-  function playTick() {
-    if (!settings.soundClick) return;
-    try {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.05);
-      
-      gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
-      
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.05);
-    } catch(e) {}
-  }
-
-  // تكة طويلة ومميزة للهدف
-  function playTargetSound() {
-    if (!settings.soundTarget) return;
-    try {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
-      osc.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.25);
-      
-      gain.gain.setValueAtTime(0.6, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
-      
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.25);
-    } catch(e) {}
-  }
-
-  /* ---------- الإعدادات ---------- */
-  document.getElementById('settingsBtn').addEventListener('click', () => {
-    document.getElementById('settingsOverlay').classList.add('show');
-  });
-  document.getElementById('closeSettings').addEventListener('click', () => {
-    document.getElementById('settingsOverlay').classList.remove('show');
-  });
-  
-  document.getElementById('soundToggle').addEventListener('change', (e) => {
-    settings.soundClick = e.target.checked;
-    save();
-    if(settings.soundClick) playTick(); 
-  });
-  
-  document.getElementById('targetSoundToggle').addEventListener('change', (e) => {
-    settings.soundTarget = e.target.checked;
-    save();
-    if(settings.soundTarget) playTargetSound(); 
-  });
-
-  /* ---------- Toast ---------- */
-  let toastTimer;
-  function toast(msg){
-    const toastEl = document.getElementById('toast');
-    toastEl.textContent = msg;
-    toastEl.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1800);
-  }
-
-  /* ---------- توليد لون فريد ---------- */
-  function getUniqueColor() {
-    if (data.length < PALETTE.length) {
-      const usedColors = data.map(d => d.tint);
-      const availableColors = PALETTE.filter(c => !usedColors.includes(c));
-      return availableColors[Math.floor(Math.random() * availableColors.length)];
-    } else {
-      return PALETTE[Math.floor(Math.random() * PALETTE.length)];
-    }
-  }
-
-  /* ---------- رسم الشبكة ---------- */
-  function render(){
-    grid.innerHTML = '';
-    emptyState.style.display = data.length ? 'none' : 'block';
-
-    data.forEach(item => {
-      const el = document.createElement('div');
-      el.className = 'counter';
-      el.style.setProperty('--tint', item.tint || PALETTE[0]);
-      
-      let isTargetReached = item.target && item.count >= item.target;
-      if (isTargetReached) el.classList.add('target-reached');
-
-      el.dataset.id = item.id;
-
-      let hintText = item.count === 0 ? 'اضغط للزيادة • اضغط مطولاً للحذف' : 'اضغط للزيادة • اضغط مطولاً للتصفير';
-      
-      el.innerHTML = `
-        <div class="name">${escapeHtml(item.name)}</div>
-        <div class="count">${item.count}</div>
-        ${item.target ? `<div class="target-info">الهدف: ${item.target}</div>` : ''}
-        <div class="hint">${hintText}</div>
-      `;
-
-      // دعم اللمس للهواتف
-      let touchMoved = false;
-      el.addEventListener('touchstart', () => { touchMoved = false; }, { passive: true });
-      el.addEventListener('touchmove', () => { touchMoved = true; }, { passive: true });
-
-      el.addEventListener('touchend', (e) => {
-        if (touchMoved) return; 
-        if (longPressed) { longPressed = false; return; }
-        
-        const it = data.find(d => d.id === item.id);
-        if (!it) return;
-        
-        it.count++;
-        playTick();
-
-        el.querySelector('.count').textContent = it.count;
-        el.querySelector('.hint').textContent = 'اضغط للزيادة • اضغط مطولاً للتصفير';
-        
-        if (it.target && it.count === it.target) {
-           el.classList.add('target-reached');
-           playTargetSound(); 
-           toast('🎉 تم الوصول للهدف: ' + it.name);
-        } else if (it.target && it.count > it.target) {
-           el.classList.add('target-reached');
-        }
-        
-        save();
-      });
-
-      // دعم الماوس للكمبيوتر
-      el.addEventListener('click', (e) => {
-        if (e.pointerType === 'mouse' || e.pointerType === 'pen') {
-          if (longPressed) { longPressed = false; return; }
-          const it = data.find(d => d.id === item.id);
-          if (!it) return;
-          it.count++;
-          playTick();
-          el.querySelector('.count').textContent = it.count;
-          el.querySelector('.hint').textContent = 'اضغط للزيادة • اضغط مطولاً للتصفير';
-          if (it.target && it.count === it.target) {
-             el.classList.add('target-reached');
-             playTargetSound();
-             toast('🎉 تم الوصول للهدف: ' + it.name);
-          } else if (it.target && it.count > it.target) {
-             el.classList.add('target-reached');
-          }
-          save();
-        }
-      });
-
-      // ضغط طويل = تصفير أو طلب حذف
-      el.addEventListener('pointerdown', (e) => {
-        longPressed = false;
-        pressTimer = setTimeout(() => {
-          longPressed = true;
-          const it = data.find(d => d.id === item.id);
-          if (!it) return;
-          if (it.count > 0) {
-            it.count = 0;
-            el.querySelector('.count').textContent = 0;
-            el.querySelector('.hint').textContent = 'اضغط للزيادة • اضغط مطولاً للحذف';
-            el.classList.remove('target-reached'); 
-            save();
-            toast('تم تصفير: ' + it.name);
-          } else {
-            pendingDelete = item.id;
-            document.getElementById('delText').textContent = 'حذف "' + it.name + '"؟ لا يمكن التراجع.';
-            document.getElementById('delOverlay').classList.add('show');
-          }
-        }, 600);
-      });
-      
-      ['pointerup','pointerleave','pointercancel'].forEach(evt => {
-        el.addEventListener(evt, () => { clearTimeout(pressTimer); });
-      });
-
-      grid.appendChild(el);
-    });
-  }
-
-  function escapeHtml(s){
-    return String(s).replace(/[&<>"']/g, c => ({
-      '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-    }[c]));
-  }
-
-  /* ---------- إضافة مسبحة ---------- */
-  document.getElementById('addBtn').addEventListener('click', () => {
-    document.getElementById('nameInput').value = '';
-    document.getElementById('targetInput').value = '';
-    document.getElementById('addOverlay').classList.add('show');
-    setTimeout(() => document.getElementById('nameInput').focus(), 100);
-  });
-  
-  document.getElementById('cancelAdd').addEventListener('click', () => {
-    document.getElementById('addOverlay').classList.remove('show');
-  });
-
-  function doAdd(){
-    const name = document.getElementById('nameInput').value.trim();
-    const targetVal = parseInt(document.getElementById('targetInput').value);
-    if (!name) { document.getElementById('nameInput').focus(); return; }
-    
-    const item = {
-      id: 'c_' + Date.now() + '_' + Math.floor(Math.random()*9999),
-      name: name,
-      count: 0,
-      target: (targetVal > 0) ? targetVal : null,
-      tint: getUniqueColor()
-    };
-    data.push(item);
-    save();
-    document.getElementById('addOverlay').classList.remove('show');
-    render();
-    toast('تمت إضافة: ' + name);
-  }
-
-  document.getElementById('confirmAdd').addEventListener('click', doAdd);
-  document.getElementById('nameInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') doAdd();
-  });
-
-  /* ---------- حذف ---------- */
-  document.getElementById('cancelDel').addEventListener('click', () => {
-    pendingDelete = null;
-    document.getElementById('delOverlay').classList.remove('show');
-  });
-  document.getElementById('confirmDel').addEventListener('click', () => {
-    if (pendingDelete) {
-      const it = data.find(d => d.id === pendingDelete);
-      data = data.filter(d => d.id !== pendingDelete);
-      save();
-      render();
-      toast(it ? 'تم حذف: ' + it.name : 'تم الحذف');
-    }
-    pendingDelete = null;
-    document.getElementById('delOverlay').classList.remove('show');
-  });
-
-  ['addOverlay', 'delOverlay', 'settingsOverlay'].forEach(id => {
-    const ov = document.getElementById(id);
-    ov.addEventListener('click', e => {
-      if (e.target === ov) ov.classList.remove('show');
-    });
-  });
-
-  /* ---------- تشغيل ---------- */
-  load();
-  render();
-})();
-</script>
+<!-- ربط ملف الجافاسكريبت -->
+<script src="app.js"></script>
 </body>
 </html>
